@@ -7,6 +7,8 @@ import { CommentPlugin } from 'typedoc/dist/lib/converter/plugins/CommentPlugin'
 import { ContainerReflection } from 'typedoc/dist/lib/models/reflections/container';
 import { getRawComment } from './getRawComment';
 
+const HackDeclarationReflection = DeclarationReflection as any;
+
 /**
  * This plugin allows an ES6 module to specify its TypeDoc name.
  * It also allows multiple ES6 modules to be merged together into a single TypeDoc module.
@@ -107,7 +109,11 @@ export class ExternalModuleNamePlugin extends ConverterComponent {
       for (let i = 0; i < nameParts.length - 1; ++i) {
         let child: DeclarationReflection = parent.children.filter(ref => ref.name === nameParts[i])[0];
         if (!child) {
-          child = new DeclarationReflection(parent, nameParts[i], ReflectionKind.ExternalModule);
+          child = new HackDeclarationReflection(
+            nameParts[i],
+            ReflectionKind.ExternalModule,
+            parent,
+          ) as DeclarationReflection;
           child.parent = parent;
           child.children = [];
           context.project.reflections[child.id] = child;
